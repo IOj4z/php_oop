@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\ImageUploader;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -33,7 +34,7 @@ class PostController extends Controller
      * Store a newly created resource in storage.
      *
      * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return string
      */
     public function store(Request $request)
     {
@@ -42,7 +43,14 @@ class PostController extends Controller
             'avatar' => 'required|image',
         ]);
 
-        $avatarFileName = '....';
+        $avatarFileName = (new \App\Classes\ImageUploader())->upload(
+            $request->file('avatar'),
+            'folder/uploads'
+        );
+
+        if ($avatarFileName === false) {
+            return '%some_error%';
+        }
 
         Storage::disk('s3')->put(
             $avatarFileName,
