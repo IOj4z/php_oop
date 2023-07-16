@@ -2,14 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Classes\CacheKeys;
-use App\Classes\ImageUploader;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use PharIo\Manifest\Email;
 
-class PostController extends Controller
+class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,6 +14,7 @@ class PostController extends Controller
      */
     public function index()
     {
+        //
     }
 
     /**
@@ -34,40 +31,11 @@ class PostController extends Controller
      * Store a newly created resource in storage.
      *
      * @param \Illuminate\Http\Request $request
-     * @return string
+     * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        $request->validate((array)$request, [
-            'email' => 'required|email',
-            'avatar' => 'required|image',
-        ]);
-
-        $avatarFileName = (new \App\Classes\ImageUploader())->upload(
-            $request->file('avatar'),
-            'avatars',
-            true,
-            false
-        );
-
-        if ($avatarFileName === false) {
-            return '%some_error%';
-        }
-
-        Storage::disk('s3')->put(
-            $avatarFileName,
-            $request->file('avata')
-        );
-
-
-        $user = new User(\request()->except('avatar'));
-
-        $user->avatarUrl = $avatarFileName;
-        $user->save();
-
-        Email::send($user, 'Hi email');
-
-        return redirect()->route('users');
+        //
     }
 
     /**
@@ -78,7 +46,7 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        $key = CacheKeys::getUserByIdKey($id);
+        //
     }
 
     /**
@@ -99,9 +67,8 @@ class PostController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(User $user)
     {
-        //
     }
 
     /**

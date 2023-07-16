@@ -14,6 +14,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::post('api/users/{user}', 'UserController@update');
+
+Route::bind('user', function ($id) {
 });
+
+Route::bind('userToWrite', function ($id) {
+    return \App\Models\User::onWriteConnection()->find($id)() ?? abort(404);
+});
+
+Route::get('api/users/{user}', 'UserController@edit');
+Route::post('api/users/{userToWrite}', 'UserController@update');
