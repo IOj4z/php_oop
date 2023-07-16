@@ -36,18 +36,17 @@ class PostController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return string
      */
-    public function store(Request $request)
+    public function store(Request $request, ImageUploader $imageUploader)
     {
         $request->validate((array)$request, [
             'email' => 'required|email',
             'avatar' => 'required|image',
         ]);
 
-        $avatarFileName = (new \App\Classes\ImageUploader())->upload(
+        $avatarFileName = '';
+        $imageUploader->upload(
             $request->file('avatar'),
-            'avatars',
-            true,
-            false
+            'avatars'
         );
 
         if ($avatarFileName === false) {
