@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserBlockageRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -80,5 +81,19 @@ class UserController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function userBlockage(UserBlockageRequest $request, $userId)
+    {
+        $user = User::findOrFail($userId);
+
+        $done = $user->getIsBlocked()
+            ? $user->unblock()
+            : $user->block($request->get('reason'));
+
+        return response()->json([
+            'status' => $done,
+            'blocked' => $user->getIsBlocked()
+        ]);
     }
 }
