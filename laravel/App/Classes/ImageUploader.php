@@ -3,11 +3,21 @@
 namespace App\Classes;
 
 
+use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Storage;
 
-class ImageUploader
+final class ImageUploader
 {
+
+    public function uploadAvatar(User $user, UploadedFile $file): void
+    {
+        $avatarFileName = 'uploads';
+        Storage::disk('s3')->put($avatarFileName, $file);
+
+        $user->avatarUrl = $avatarFileName;
+    }
 
     /**
      * @returns bool|string
