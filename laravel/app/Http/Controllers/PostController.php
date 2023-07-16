@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use PharIo\Manifest\Email;
 
 class PostController extends Controller
 {
@@ -35,12 +37,25 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate((array)$request, ['email' => 'required|email']);
-        $user = User::create(request->all());
+        $request->validate((array)$request, [
+            'email' => 'required|email',
+            'avatar' => 'required|image',
+        ]);
 
-        if (!$user) {
-            return $this->redirect()->back()->withMessage('......');
-        }
+        $avatarFileName = '....';
+
+        Storage::disk('s3')->put(
+            $avatarFileName,
+            $request->file('avata')
+        );
+
+
+        $user = new User(\request()->except('avatar'));
+
+        $user->avatarUrl = $avatarFileName;
+        $user->save();
+
+        Email::send($user, 'Hi email');
 
         return redirect()->route('users');
     }
