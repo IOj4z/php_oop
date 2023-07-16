@@ -67,8 +67,10 @@ class UserController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(User $user)
+    public function update($id)
     {
+        $user = User::findOrFail($id);
+        dd($user);
     }
 
     /**
