@@ -14,6 +14,10 @@ class User extends Authenticatable
 
     public const VERSION = '1';
     /**
+     * @var mixed|string
+     */
+    public mixed $avatarUrl;
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
