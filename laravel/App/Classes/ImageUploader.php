@@ -3,31 +3,26 @@
 namespace App\Classes;
 
 
+use App\Interface\StorageInterface;
+use App\Interface\ThumbCreatorInterface;
 use App\Models\User;
+use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 
 final class ImageUploader
 {
-    /**
-     * @var Storage
-     */
-    private $storage;
+    /** @var GoogleVisionClient */
+    private $googleVision;
+    /** @var FileSystemManager */
+    private $fileSystemManager;
 
-    /**
-     * @var ThumbCreator
-     */
-    private $thumbCreator;
-
-    /**
-     * @param Storage $storage
-     * @param ThumbCreator $thumbCreator
-     */
-    public function __construct(Storage $storage, ThumbCreator $thumbCreator)
+    public function __construct(GoogleVisionClient $googleVision, FileSystemManager $fileSystemManager)
     {
-        $this->storage = $storage;
-        $this->thumbCreator = $thumbCreator;
+        $this->googleVision = $googleVision;
+        $this->fileSystemManager = $fileSystemManager;
     }
 
 
@@ -42,10 +37,37 @@ final class ImageUploader
     /**
      * @returns bool|string
      */
-    public function upload(string $fileName, UploadedFile $file): void
+    public function upload(
+        UploadedFile $file,
+        string $folder,
+        bool $dontBan = false,
+        bool $weakerRules = false,
+        int $banThreshold = 5
+    ) {
+        $fileContent = $file->getContents();
+
+        if ('check failed') {
+            if (!$dontBan) {
+                if (RateLimiter::class, $banThreshold)){
+                    $this->banUser(Auth::user());
+                }
+            }
+            return false;
+        }
+
+        $fileName = $folder . 'some_unique_file_name.jpg';
+
+        $this->fileSystemManager
+            ->disk('')
+            ->put($fileName, $fileContent);
+
+        return $fileName
+    }
+
+    private function banUser(User $user)
     {
-        $this->thumbCreator->upload($fileName, $file);
-        $this->storage->disk('s3')->put($fileName, $file);
+        $user->banned = true;
+        $user->save();
     }
 
 }
